@@ -1,25 +1,50 @@
 use axum::{Json, Router, routing::get};
 use serde_json::{Value, json};
 use tracing::info;
+use tracing_subscriber::EnvFilter;
+
+use crate::{config::ConfigManager, state::AppState};
+
+mod config;
+mod state;
 
 #[tokio::main]
 async fn main() {
-    // Install global tracing subscriber configured based on RUST_LOG envvar
-    tracing_subscriber::fmt::init();
+    // Load environment variables from .env file
+    dotenvy::dotenv().ok();
+
+    // Install global tracing subscriber configured based on RUST_LOG env var
+    tracing_subscriber::fmt()
+        .with_env_filter(match EnvFilter::try_from_default_env() {
+            Ok(filter) => filter,
+            Err(error) => {
+                eprintln!(
+                    "Invalid or missing RUST_LOG ({error}), falling back to info logging level"
+                );
+                EnvFilter::new("info")
+            }
+        })
+        .init();
+
+    let config_manager = ConfigManager::init();
+    let app_state = AppState::new(&config_manager.database_url)
+        .await
+        .expect("Failed to connect to the database");
 
     let app = Router::new()
         // Healthcheck endpoints
-        .route("/health", get(health_check));
+        .route("/health", get(health_check))
+        .with_state(app_state);
 
     // The 0.0.0.0 address means the server accepts connections from any IP address, not just localhost.
-    let address = "0.0.0.0:3000";
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
+    let address = format!("0.0.0.0:{}", config_manager.port);
+    let listener = tokio::net::TcpListener::bind(&address).await.unwrap();
     info!("Server is running on {}", address);
     axum::serve(listener, app).await.unwrap();
 }
 
 async fn health_check() -> Json<Value> {
-    info!("health_check handler started ...");
+    info!("health_check handler started...");
 
     Json(json!({
         "status": "200",
