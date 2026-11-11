@@ -1,11 +1,11 @@
-use axum::{Json, Router, routing::get};
-use serde_json::{Value, json};
+use axum::{Router, routing::get};
 use tracing::info;
 use tracing_subscriber::EnvFilter;
 
-use crate::{config::ConfigManager, state::AppState};
+use crate::{config::ConfigManager, handlers::health_check, state::AppState};
 
 mod config;
+mod handlers;
 mod state;
 
 #[tokio::main]
@@ -41,13 +41,4 @@ async fn main() {
     let listener = tokio::net::TcpListener::bind(&address).await.unwrap();
     info!("Server is running on {}", address);
     axum::serve(listener, app).await.unwrap();
-}
-
-async fn health_check() -> Json<Value> {
-    info!("health_check handler started...");
-
-    Json(json!({
-        "status": "200",
-        "message": "Server is running"
-    }))
 }
