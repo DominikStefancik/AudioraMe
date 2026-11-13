@@ -5,6 +5,7 @@ use tracing_subscriber::EnvFilter;
 use crate::{config::ConfigManager, handlers::health_check, state::AppState};
 
 mod config;
+mod database;
 mod handlers;
 mod state;
 
