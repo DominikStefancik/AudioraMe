@@ -12,7 +12,7 @@ pub struct RegisterEndUserRequest {
 pub struct RegisterEndUserData {
     #[validate(length(
         min = 3,
-        max = 50,
+        max = 255,
         message = "Username must be between 3 and 255 characters"
     ))]
     pub username: String,
@@ -20,7 +20,11 @@ pub struct RegisterEndUserData {
     #[validate(email(message = "Invalid email format"))]
     pub email: String,
 
-    #[validate(length(min = 8, message = "Password must be at least 8 characters"))]
+    #[validate(length(
+        min = 8,
+        max = 64,
+        message = "Password must be between 8 and 64 characters"
+    ))]
     pub password: String,
 }
 
