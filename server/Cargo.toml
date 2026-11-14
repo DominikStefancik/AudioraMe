@@ -33,6 +33,9 @@ validator = { version = "0.21.0", features = ["derive"] }
 uuid = { version = "1.29.2", features = ["serde", "v4"] }
 chrono = { version = "0.4.45", features = ["serde"] }
 
+# Auth
+argon2 = "0.6.0"
+
 # Logging
 tracing = "0.1.44"
 tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }

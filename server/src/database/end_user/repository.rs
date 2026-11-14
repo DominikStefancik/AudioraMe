@@ -27,7 +27,7 @@ impl EndUserRepositoryTrait for EndUserRepository {
             r#"
             INSERT INTO end_user (username, email, password_hash)
             VALUES ($1, $2, $3)
-            RETURNING id, username, email, password_hash, bio, image, email_verified, created_at, updated_at
+            RETURNING id, username, email, password_hash, bio, image, created_at, updated_at
             "#,
         )
         // The "bind()" method safely inserts our parameters, preventing SQL injection attacks.
@@ -58,7 +58,7 @@ impl EndUserRepositoryTrait for EndUserRepository {
                 bio = COALESCE($4, bio),
                 image = COALESCE($5, image)
             WHERE id = $1
-            RETURNING id, username, email, password_hash, bio, image, email_verified, created_at, updated_at
+            RETURNING id, username, email, password_hash, bio, image, created_at, updated_at
             "#,
         )
         .bind(id)
@@ -75,7 +75,7 @@ impl EndUserRepositoryTrait for EndUserRepository {
     async fn find_by_id(&self, id: Uuid) -> Result<Option<EndUser>, sqlx::Error> {
         let user = sqlx::query_as::<_, EndUser>(
             r#"
-            SELECT id, username, email, password_hash, bio, image, email_verified, created_at, updated_at
+            SELECT id, username, email, password_hash, bio, image, created_at, updated_at
             FROM end_user
             WHERE id = $1
             "#,
@@ -90,7 +90,7 @@ impl EndUserRepositoryTrait for EndUserRepository {
     async fn find_by_email(&self, email: &str) -> Result<Option<EndUser>, sqlx::Error> {
         let user = sqlx::query_as::<_, EndUser>(
             r#"
-            SELECT id, username, email, password_hash, bio, image, email_verified, created_at, updated_at
+            SELECT id, username, email, password_hash, bio, image, created_at, updated_at
             FROM end_user
             WHERE email = $1
             "#,
@@ -105,9 +105,9 @@ impl EndUserRepositoryTrait for EndUserRepository {
     async fn find_by_username(&self, username: &str) -> Result<Option<EndUser>, sqlx::Error> {
         let user = sqlx::query_as::<_, EndUser>(
             r#"
-            SELECT id, username, email, password_hash, bio, image, email_verified, created_at, updated_at
+            SELECT id, username, email, password_hash, bio, image, created_at, updated_at
             FROM end_user
-            WHERE email = $1
+            WHERE username = $1
             "#,
         )
         .bind(username)

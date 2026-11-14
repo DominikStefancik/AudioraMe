@@ -1,12 +1,20 @@
-use axum::{Router, routing::get};
+use axum::{
+    Router,
+    routing::{get, post},
+};
 use tracing::info;
 use tracing_subscriber::EnvFilter;
 
-use crate::{config::ConfigManager, handlers::health_check, state::AppState};
+use crate::{
+    config::ConfigManager,
+    http::handlers::{health_check, register_end_user},
+    state::AppState,
+};
 
+mod auth;
 mod config;
 mod database;
-mod handlers;
+mod http;
 mod state;
 
 #[tokio::main]
@@ -35,6 +43,7 @@ async fn main() {
     let app = Router::new()
         // Healthcheck endpoints
         .route("/health", get(health_check))
+        .route("/api/users", post(register_end_user))
         .with_state(app_state);
 
     // The 0.0.0.0 address means the server accepts connections from any IP address, not just localhost.
