@@ -1,15 +1,7 @@
-use axum::{
-    Router,
-    routing::{get, post},
-};
 use tracing::info;
 use tracing_subscriber::EnvFilter;
 
-use crate::{
-    config::ConfigManager,
-    http::handlers::{health_check, register_end_user},
-    state::AppState,
-};
+use crate::{config::ConfigManager, http::create_app_router, state::AppState};
 
 mod auth;
 mod config;
@@ -40,11 +32,7 @@ async fn main() {
         .await
         .expect("Failed to connect to the database");
 
-    let app = Router::new()
-        // Healthcheck endpoints
-        .route("/health", get(health_check))
-        .route("/api/users", post(register_end_user))
-        .with_state(app_state);
+    let app = create_app_router(app_state);
 
     // The 0.0.0.0 address means the server accepts connections from any IP address, not just localhost.
     let address = format!("0.0.0.0:{}", config_manager.port);
