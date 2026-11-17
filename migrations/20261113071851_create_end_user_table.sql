@@ -1,4 +1,4 @@
--- Migration: Create end_user table
+-- Migration 0001: Create end_user table
 
 -- This enables PostgreSQL’s UUID generation functions, like "uuid_generate_v4".
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
@@ -14,6 +14,7 @@ CREATE TABLE end_user (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Indices for fast lookups
 CREATE INDEX idx_end_user_email ON end_user(email);
 CREATE INDEX idx_end_user_username ON end_user(username);
 CREATE INDEX idx_end_user_created_at ON end_user(created_at);
