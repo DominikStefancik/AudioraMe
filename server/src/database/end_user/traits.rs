@@ -31,7 +31,7 @@ pub trait EndUserRepositoryTrait: Send + Sync {
 
     async fn update_password(
         &self,
-        user_id: Uuid,
+        end_user_id: Uuid,
         new_password_hash: &str,
     ) -> Result<(), sqlx::Error>;
 }

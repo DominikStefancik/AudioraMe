@@ -119,7 +119,7 @@ impl EndUserRepositoryTrait for EndUserRepository {
 
     async fn update_password(
         &self,
-        user_id: Uuid,
+        end_user_id: Uuid,
         new_password_hash: &str,
     ) -> Result<(), sqlx::Error> {
         sqlx::query(
@@ -130,7 +130,7 @@ impl EndUserRepositoryTrait for EndUserRepository {
             "#,
         )
         // The "bind()" method safely inserts our parameters, preventing SQL injection attacks.
-        .bind(user_id)
+        .bind(end_user_id)
         .bind(new_password_hash)
         .execute(&self.db)
         .await?;
