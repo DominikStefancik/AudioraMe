@@ -4,7 +4,10 @@ use axum::extract::FromRef;
 use sqlx::{PgPool, Pool, Postgres};
 use tracing::{debug, info};
 
-use crate::database::{EndUserRepository, EndUserRepositoryTrait};
+use crate::database::{
+    EndUserRepository, EndUserRepositoryTrait, PasswordResetTokenRepository,
+    PasswordResetTokenRepositoryTrait,
+};
 
 #[derive(Clone, FromRef)]
 pub struct AppState {
@@ -14,6 +17,7 @@ pub struct AppState {
      * user repository will be used.
      */
     pub end_user_repository: Arc<dyn EndUserRepositoryTrait>,
+    pub password_reset_token_repository: Arc<dyn PasswordResetTokenRepositoryTrait>,
 }
 
 impl AppState {
@@ -33,9 +37,13 @@ impl AppState {
         let end_user_repository: Arc<dyn EndUserRepositoryTrait> =
             Arc::new(EndUserRepository::new(db.clone()));
 
+        let password_reset_token_repository: Arc<dyn PasswordResetTokenRepositoryTrait> =
+            Arc::new(PasswordResetTokenRepository::new(db.clone()));
+
         Ok(AppState {
             db,
             end_user_repository,
+            password_reset_token_repository,
         })
     }
 }
