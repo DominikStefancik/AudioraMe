@@ -12,7 +12,7 @@ pub async fn register_end_user(
     State(state): State<AppState>,
     Json(payload): Json<RegisterEndUserRequest>,
 ) -> Result<Json<LoginResponse>, StatusCode> {
-    info!("register_end_user handler started ...");
+    info!("register_end_user handler started...");
 
     // Validate input data
     payload.user.validate().map_err(|error| {
