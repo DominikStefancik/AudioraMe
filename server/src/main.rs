@@ -1,4 +1,4 @@
-use tracing::info;
+use tracing::{info, warn};
 use tracing_subscriber::EnvFilter;
 
 use crate::{config::ConfigManager, http::create_app_router, state::AppState};
@@ -19,16 +19,14 @@ async fn main() {
         .with_env_filter(match EnvFilter::try_from_default_env() {
             Ok(filter) => filter,
             Err(error) => {
-                eprintln!(
-                    "Invalid or missing RUST_LOG ({error}), falling back to info logging level"
-                );
+                warn!("Invalid or missing RUST_LOG ({error}), falling back to info logging level");
                 EnvFilter::new("info")
             }
         })
         .init();
 
     let config_manager = ConfigManager::init();
-    let app_state = AppState::new(&config_manager.database_url)
+    let app_state = AppState::new(config_manager.clone())
         .await
         .expect("Failed to connect to the database");
 

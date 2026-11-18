@@ -4,14 +4,18 @@ use axum::extract::FromRef;
 use sqlx::{PgPool, Pool, Postgres};
 use tracing::{debug, info};
 
-use crate::database::{
-    EndUserRepository, EndUserRepositoryTrait, PasswordResetTokenRepository,
-    PasswordResetTokenRepositoryTrait,
+use crate::{
+    config::ConfigManager,
+    database::{
+        EndUserRepository, EndUserRepositoryTrait, PasswordResetTokenRepository,
+        PasswordResetTokenRepositoryTrait,
+    },
 };
 
 #[derive(Clone, FromRef)]
 pub struct AppState {
     pub db: Pool<Postgres>,
+    pub config_manager: ConfigManager,
     /* "dyn" means “dynamic dispatch”
      * At compile time, the Rust compiler doesn't know which implementation of the
      * user repository will be used.
@@ -21,8 +25,8 @@ pub struct AppState {
 }
 
 impl AppState {
-    pub async fn new(database_url: &str) -> Result<Self, sqlx::Error> {
-        let db = PgPool::connect(database_url).await?;
+    pub async fn new(config_manager: ConfigManager) -> Result<Self, sqlx::Error> {
+        let db = PgPool::connect(&config_manager.database_url).await?;
         debug!("Connected to the database successfully");
 
         // Run migrations automatically
@@ -42,6 +46,7 @@ impl AppState {
 
         Ok(AppState {
             db,
+            config_manager,
             end_user_repository,
             password_reset_token_repository,
         })
