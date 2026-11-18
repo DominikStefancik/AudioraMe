@@ -45,10 +45,28 @@ fn validate_username(username: &str) -> Result<(), ValidationError> {
 
     Ok(())
 }
+#[derive(Debug, Deserialize)]
+pub struct LoginEndUserRequest {
+    pub user: LoginEndUserData,
+}
+
+#[derive(Debug, Deserialize, Validate)]
+pub struct LoginEndUserData {
+    #[validate(
+        length(min = 1, message = "Email must be provided"),
+        email(message = "Invalid email format")
+    )]
+    pub email: String,
+
+    #[validate(length(min = 1, message = "Password must be provided"))]
+    pub password: String,
+}
 
 #[derive(Debug, Serialize)]
 pub struct LoginResponse {
     pub user: EndUserData,
+    // token is always included (client needs it for future requests)
+    pub access_token: String,
 }
 
 #[derive(Debug, Serialize)]

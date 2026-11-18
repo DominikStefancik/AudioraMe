@@ -26,14 +26,14 @@ pub fn generate_token(end_user_id: &Uuid, secret: &str, duration: u16) -> Result
     encode(
         &Header::default(), // The default header uses HS256 algorithm
         &token_claims,
-        &EncodingKey::from_secret(secret.as_ref()).unwrap(),
+        &EncodingKey::from_secret(secret.as_ref()),
     )
 }
 
 pub fn validate_token(token: &str, secret: &str) -> Result<TokenClaims, Error> {
     decode::<TokenClaims>(
         token,
-        &DecodingKey::from_secret(secret.as_ref()).unwrap(),
+        &DecodingKey::from_secret(secret.as_ref()),
         &Validation::new(Algorithm::HS256),
     )
     .map(|data| data.claims)

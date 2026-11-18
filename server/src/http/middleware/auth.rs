@@ -47,7 +47,7 @@ where
 
         // Get end user from the database
         let user_id = Uuid::parse_str(&claims.sub).map_err(|_| StatusCode::UNAUTHORIZED)?;
-        let user = app_state
+        let end_user = app_state
             .end_user_repository
             .find_by_id(user_id)
             .await
@@ -60,7 +60,7 @@ where
             })?
             .ok_or(StatusCode::UNAUTHORIZED)?;
 
-        Ok(RequiredAuth(user))
+        Ok(RequiredAuth(end_user))
     }
 }
 
@@ -99,7 +99,7 @@ where
             Ok(id) => id,
             Err(_) => return Ok(OptionalAuth(None)),
         };
-        let user = app_state
+        let end_user = app_state
             .end_user_repository
             .find_by_id(user_id)
             .await
@@ -111,7 +111,7 @@ where
                 StatusCode::INTERNAL_SERVER_ERROR
             })?;
 
-        Ok(OptionalAuth(user))
+        Ok(OptionalAuth(end_user))
     }
 }
 

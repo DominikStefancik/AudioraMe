@@ -3,7 +3,7 @@ use tracing::{debug, error, info};
 use validator::Validate;
 
 use crate::{
-    auth::hash_password,
+    auth::{generate_token, hash_password},
     http::schemas::{EndUserData, LoginResponse, RegisterEndUserRequest},
     state::AppState,
 };
@@ -26,7 +26,10 @@ pub async fn register_end_user(
         .find_by_username(&payload.user.username)
         .await
         .map_err(|error| {
-            error!("Error while fetching end user by username: {}", error);
+            error!(
+                "Error while fetching end user by username from the database: {}",
+                error
+            );
             StatusCode::INTERNAL_SERVER_ERROR
         })?
         .is_some()
@@ -44,7 +47,10 @@ pub async fn register_end_user(
         .find_by_email(&payload.user.email)
         .await
         .map_err(|error| {
-            error!("Error while fetching end user by email: {}", error);
+            error!(
+                "Error while fetching end user by email from the database: {}",
+                error
+            );
             StatusCode::INTERNAL_SERVER_ERROR
         })?
         .is_some()
@@ -72,9 +78,21 @@ pub async fn register_end_user(
             StatusCode::INTERNAL_SERVER_ERROR
         })?;
 
+    // Generate JWT token
+    let access_token = generate_token(
+        &end_user.id,
+        &state.config_manager.jwt_secret,
+        state.config_manager.jwt_max_duration_minutes,
+    )
+    .map_err(|error| {
+        error!("Error while generating an access token: {}", error);
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
+
     // Build response
     let response = LoginResponse {
         user: EndUserData::from_end_user(end_user),
+        access_token,
     };
 
     info!("End user successfully registered");
