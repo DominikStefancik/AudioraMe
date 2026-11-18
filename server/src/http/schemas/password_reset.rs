@@ -3,7 +3,10 @@ use validator::Validate;
 
 #[derive(Debug, Deserialize, Validate)]
 pub struct ForgotPasswordRequest {
-    #[validate(email(message = "Invalid email format"))]
+    #[validate(
+        length(min = 1, message = "Email must be provided"),
+        email(message = "Invalid email format")
+    )]
     pub email: String,
 }
 
@@ -16,6 +19,7 @@ pub struct ForgotPasswordResponse {
 
 #[derive(Debug, Deserialize, Validate)]
 pub struct ResetPasswordRequest {
+    #[validate(length(min = 1, message = "Token must be provided"))]
     pub token: String,
 
     #[validate(length(min = 8, message = "Password must be at least 8 characters"))]

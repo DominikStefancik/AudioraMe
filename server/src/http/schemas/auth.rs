@@ -1,5 +1,6 @@
+use regex::Regex;
 use serde::{Deserialize, Serialize};
-use validator::Validate;
+use validator::{Validate, ValidationError};
 
 use crate::database::EndUser;
 
@@ -15,9 +16,13 @@ pub struct RegisterEndUserData {
         max = 255,
         message = "Username must be between 3 and 255 characters"
     ))]
+    #[validate(custom(function = "validate_username"))]
     pub username: String,
 
-    #[validate(email(message = "Invalid email format"))]
+    #[validate(
+        length(min = 1, message = "Email must be provided"),
+        email(message = "Invalid email format")
+    )]
     pub email: String,
 
     #[validate(length(
@@ -26,6 +31,19 @@ pub struct RegisterEndUserData {
         message = "Password must be between 8 and 64 characters"
     ))]
     pub password: String,
+}
+
+fn validate_username(username: &str) -> Result<(), ValidationError> {
+    let regex =
+        Regex::new(r"^[a-zA-Z0-9_]+$").expect("Incorrect regex expression for the username");
+
+    if !regex.is_match(username) {
+        return Err(ValidationError::new(
+            "Username can only contain letters, numbers, and underscores",
+        ));
+    }
+
+    Ok(())
 }
 
 #[derive(Debug, Serialize)]
