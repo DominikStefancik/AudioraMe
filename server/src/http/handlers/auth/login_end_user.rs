@@ -12,7 +12,7 @@ pub async fn login_end_user(
     State(state): State<AppState>,
     Json(payload): Json<LoginEndUserRequest>,
 ) -> Result<Json<LoginResponse>, StatusCode> {
-    info!("login_end_user handler started ...");
+    info!("login_end_user handler started...");
 
     // Validate input data
     payload.user.validate().map_err(|error| {

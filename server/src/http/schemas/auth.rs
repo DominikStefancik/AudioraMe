@@ -70,6 +70,11 @@ pub struct LoginResponse {
 }
 
 #[derive(Debug, Serialize)]
+pub struct AuthenticatedEndUserResponse {
+    pub user: EndUserData,
+}
+
+#[derive(Debug, Serialize)]
 pub struct EndUserData {
     pub username: String,
     pub email: String,
