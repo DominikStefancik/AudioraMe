@@ -67,6 +67,7 @@ pub struct LoginResponse {
     pub user: EndUserData,
     // token is always included (client needs it for future requests)
     pub access_token: String,
+    pub refresh_token: String,
 }
 
 #[derive(Debug, Serialize)]

@@ -8,7 +8,7 @@ use crate::{
     config::ConfigManager,
     database::{
         EndUserRepository, EndUserRepositoryTrait, PasswordResetTokenRepository,
-        PasswordResetTokenRepositoryTrait,
+        PasswordResetTokenRepositoryTrait, RefreshTokenRepository, RefreshTokenRepositoryTrait,
     },
 };
 
@@ -22,6 +22,7 @@ pub struct AppState {
      */
     pub end_user_repository: Arc<dyn EndUserRepositoryTrait>,
     pub password_reset_token_repository: Arc<dyn PasswordResetTokenRepositoryTrait>,
+    pub refresh_token_repository: Arc<dyn RefreshTokenRepositoryTrait>,
 }
 
 impl AppState {
@@ -44,11 +45,15 @@ impl AppState {
         let password_reset_token_repository: Arc<dyn PasswordResetTokenRepositoryTrait> =
             Arc::new(PasswordResetTokenRepository::new(db.clone()));
 
+        let refresh_token_repository: Arc<dyn RefreshTokenRepositoryTrait> =
+            Arc::new(RefreshTokenRepository::new(db.clone()));
+
         Ok(AppState {
             db,
             config_manager,
             end_user_repository,
             password_reset_token_repository,
+            refresh_token_repository,
         })
     }
 }

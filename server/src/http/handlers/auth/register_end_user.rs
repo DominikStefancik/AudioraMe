@@ -3,7 +3,7 @@ use tracing::{debug, error, info};
 use validator::Validate;
 
 use crate::{
-    auth::{generate_token, hash_password},
+    auth::{generate_refresh_token, generate_token, hash_password},
     http::schemas::{EndUserData, LoginResponse, RegisterEndUserRequest},
     state::AppState,
 };
@@ -89,10 +89,23 @@ pub async fn register_end_user(
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
 
+    // Generate refresh token (UUID, no expiration)
+    let refresh_token = generate_refresh_token();
+
+    state
+        .refresh_token_repository
+        .create_token(end_user.id, &refresh_token)
+        .await
+        .map_err(|error| {
+            error!("Error while saving refresh token: {}", error);
+            StatusCode::INTERNAL_SERVER_ERROR
+        })?;
+
     // Build response
     let response = LoginResponse {
         user: EndUserData::from_end_user(end_user),
         access_token,
+        refresh_token,
     };
 
     info!("End user successfully registered");
