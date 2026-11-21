@@ -9,4 +9,4 @@ pub use auth::{
 pub use password_reset::{
     ForgotPasswordRequest, ForgotPasswordResponse, ResetPasswordRequest, ResetPasswordResponse,
 };
-pub use refresh_token::{RefreshTokenRequest, RefreshTokenResponse};
+pub use refresh_token::{LogoutRequest, LogoutResponse, RefreshTokenRequest, RefreshTokenResponse};

@@ -6,7 +6,7 @@ use crate::{
             password_reset::{forgot_password, reset_password},
             refresh_token::refresh_access_token,
         },
-        login_end_user, register_end_user,
+        login_end_user, logout_end_user, register_end_user,
     },
     state::AppState,
 };
@@ -18,4 +18,5 @@ pub fn auth_router() -> Router<AppState> {
         .route("/forgot-password", post(forgot_password))
         .route("/reset-password", post(reset_password))
         .route("/refresh-token", post(refresh_access_token))
+        .route("/logout", post(logout_end_user))
 }

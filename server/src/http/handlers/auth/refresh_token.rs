@@ -54,13 +54,13 @@ pub async fn refresh_access_token(
     // Step 3: REUSE DETECTION - Check if token was already used
     if refresh_token.is_used {
         // SECURITY BREACH DETECTED!
-        // Someone is trying to use an old token
+        // Someone is trying to use an old refresh token
         // This means the token has likely been stolen
 
-        error!("TOKEN REUSE DETECTED!");
+        error!("REFRESH TOKEN REUSE DETECTED!");
         error!("Token: {}", &payload.refresh_token);
         error!("User ID: {}", refresh_token.end_user_id);
-        error!("Originally used at: {:?}", refresh_token.used_at);
+        error!("Originally used at: {:?}", refresh_token.used_at.unwrap());
 
         // Nuclear option: Delete ALL user's refresh tokens
         // Force them to login again
