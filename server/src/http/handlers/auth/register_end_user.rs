@@ -1,10 +1,13 @@
 use axum::{Json, extract::State, http::StatusCode};
-use tracing::{debug, error, info};
+use tracing::{error, info};
 use validator::Validate;
 
 use crate::{
     auth::{generate_refresh_token, generate_token, hash_password},
-    http::schemas::{EndUserData, LoginResponse, RegisterEndUserRequest},
+    http::{
+        handlers::helpers::{is_email_used, is_username_used},
+        schemas::{EndUserData, LoginResponse, RegisterEndUserRequest},
+    },
     state::AppState,
 };
 
@@ -20,45 +23,19 @@ pub async fn register_end_user(
         StatusCode::BAD_REQUEST
     })?;
 
-    // Check if user with a given username already exists
-    if state
-        .end_user_repository
-        .find_by_username(&payload.user.username)
+    // Check if a user with a given username already exists
+    if is_username_used(&state.end_user_repository, &payload.user.username)
         .await
-        .map_err(|error| {
-            error!(
-                "Error while fetching end user by username from the database: {}",
-                error
-            );
-            StatusCode::INTERNAL_SERVER_ERROR
-        })?
-        .is_some()
+        .is_ok()
     {
-        debug!(
-            "End user with the username {} already exists",
-            &payload.user.username
-        );
         return Err(StatusCode::CONFLICT);
     }
 
-    // Check if user with a given email already exists
-    if state
-        .end_user_repository
-        .find_by_email(&payload.user.email)
+    // Check if a user with a given email already exists
+    if is_email_used(&state.end_user_repository, &payload.user.email)
         .await
-        .map_err(|error| {
-            error!(
-                "Error while fetching end user by email from the database: {}",
-                error
-            );
-            StatusCode::INTERNAL_SERVER_ERROR
-        })?
-        .is_some()
+        .is_ok()
     {
-        debug!(
-            "End user with the email {} already exists",
-            &payload.user.email
-        );
         return Err(StatusCode::CONFLICT);
     }
 

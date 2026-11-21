@@ -1,11 +1,14 @@
 mod auth;
+mod end_user;
+mod helpers;
 mod password_reset;
 mod refresh_token;
 
 pub use auth::{
-    AuthenticatedEndUserResponse, EndUserData, LoginEndUserRequest, LoginResponse,
-    RegisterEndUserRequest,
+    AuthenticatedEndUserResponse, LoginEndUserRequest, LoginResponse, RegisterEndUserRequest,
 };
+pub use end_user::{EndUserData, UpdateEndUserData, UpdateEndUserRequest, UpdateEndUserResponse};
+pub use helpers::{validate_username, validate_uuid};
 pub use password_reset::{
     ForgotPasswordRequest, ForgotPasswordResponse, ResetPasswordRequest, ResetPasswordResponse,
 };

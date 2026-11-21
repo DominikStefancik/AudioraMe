@@ -1,8 +1,7 @@
-use regex::Regex;
 use serde::{Deserialize, Serialize};
-use validator::{Validate, ValidationError};
+use validator::Validate;
 
-use crate::database::EndUser;
+use crate::http::schemas::{EndUserData, validate_username};
 
 #[derive(Debug, Deserialize)]
 pub struct RegisterEndUserRequest {
@@ -33,18 +32,6 @@ pub struct RegisterEndUserData {
     pub password: String,
 }
 
-fn validate_username(username: &str) -> Result<(), ValidationError> {
-    let regex =
-        Regex::new(r"^[a-zA-Z0-9_]+$").expect("Incorrect regex expression for the username");
-
-    if !regex.is_match(username) {
-        return Err(ValidationError::new(
-            "Username can only contain letters, numbers, and underscores",
-        ));
-    }
-
-    Ok(())
-}
 #[derive(Debug, Deserialize)]
 pub struct LoginEndUserRequest {
     pub user: LoginEndUserData,
@@ -73,23 +60,4 @@ pub struct LoginResponse {
 #[derive(Debug, Serialize)]
 pub struct AuthenticatedEndUserResponse {
     pub user: EndUserData,
-}
-
-#[derive(Debug, Serialize)]
-pub struct EndUserData {
-    pub username: String,
-    pub email: String,
-    pub bio: String,
-    pub image: Option<String>,
-}
-
-impl EndUserData {
-    pub fn from_end_user(end_user: EndUser) -> Self {
-        Self {
-            username: end_user.username,
-            email: end_user.email,
-            bio: end_user.bio.unwrap_or_default(), // Empty string if None
-            image: end_user.image,
-        }
-    }
 }
