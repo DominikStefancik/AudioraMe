@@ -33,17 +33,11 @@ where
         let token = extract_token_from_headers(headers).ok_or(StatusCode::UNAUTHORIZED)?;
 
         // Validate JWT token
-        let jwt_secret = std::env::var("JWT_SECRET").map_err(|error| {
-            error!(
-                "Error while fetching JWT secret from the environment variable: {}",
-                error
-            );
-            StatusCode::INTERNAL_SERVER_ERROR
-        })?;
-        let claims = validate_token(&token, &jwt_secret).map_err(|error| {
-            error!("JWT token invalid: {}", error);
-            StatusCode::UNAUTHORIZED
-        })?;
+        let claims =
+            validate_token(&token, &app_state.config_manager.jwt_secret).map_err(|error| {
+                error!("JWT token invalid: {}", error);
+                StatusCode::UNAUTHORIZED
+            })?;
 
         // Get end user from the database
         let user_id = Uuid::parse_str(&claims.sub).map_err(|_| StatusCode::UNAUTHORIZED)?;
@@ -82,14 +76,7 @@ where
         };
 
         // Try to validate JWT token
-        let jwt_secret = std::env::var("JWT_SECRET").map_err(|error| {
-            error!(
-                "Error while fetching JWT secret from the environment variable: {}",
-                error
-            );
-            StatusCode::INTERNAL_SERVER_ERROR
-        })?;
-        let claims = match validate_token(&token, &jwt_secret) {
+        let claims = match validate_token(&token, &app_state.config_manager.jwt_secret) {
             Ok(claims) => claims,
             Err(_) => return Ok(OptionalAuth(None)),
         };
