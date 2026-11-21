@@ -13,10 +13,10 @@ pub async fn is_username_used(
         .await
         .map_err(|error| {
             error!(
-                "Error while fetching end user by username from the database: {}",
+                "Error while fetching an end user by username from the database: {}",
                 error
             );
-            "Error while fetching end user by username from the database".to_string()
+            "Error while fetching an end user by username from the database"
         })?
         .is_some()
     {
@@ -36,10 +36,10 @@ pub async fn is_email_used(
         .await
         .map_err(|error| {
             error!(
-                "Error while fetching end user by email from the database: {}",
+                "Error while fetching an end user by email from the database: {}",
                 error
             );
-            "Error while fetching end user by email from the database"
+            "Error while fetching an end user by email from the database"
         })?
         .is_some()
     {

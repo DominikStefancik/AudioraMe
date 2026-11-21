@@ -7,8 +7,8 @@ use tracing::{debug, error, info};
 use validator::Validate;
 
 use crate::{
+    database::{is_email_used, is_username_used},
     http::{
-        handlers::helpers::{is_email_used, is_username_used},
         middleware::RequiredAuth,
         schemas::{
             EndUserData, UpdateEndUserData, UpdateEndUserRequest, UpdateEndUserResponse,
@@ -69,7 +69,7 @@ pub async fn update_end_user(
         .await
         .map_err(|error| {
             error!(
-                "Error while fetching end user by usernamae from the database: {}",
+                "Error while fetching end user by username from the database: {}",
                 error
             );
             StatusCode::INTERNAL_SERVER_ERROR

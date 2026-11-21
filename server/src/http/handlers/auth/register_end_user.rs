@@ -4,10 +4,8 @@ use validator::Validate;
 
 use crate::{
     auth::{generate_refresh_token, generate_token, hash_password},
-    http::{
-        handlers::helpers::{is_email_used, is_username_used},
-        schemas::{EndUserData, LoginResponse, RegisterEndUserRequest},
-    },
+    database::{is_email_used, is_username_used},
+    http::schemas::{EndUserData, LoginResponse, RegisterEndUserRequest},
     state::AppState,
 };
 
@@ -24,17 +22,33 @@ pub async fn register_end_user(
     })?;
 
     // Check if a user with a given username already exists
-    if is_username_used(&state.end_user_repository, &payload.user.username)
+    if let Some(is_used) = is_username_used(&state.end_user_repository, &payload.user.username)
         .await
-        .is_ok()
+        .map_err(|error| {
+            error!(
+                "Error while fetching an end user by username from the database: {}",
+                error
+            );
+            StatusCode::INTERNAL_SERVER_ERROR
+        })
+        .ok()
+        && is_used
     {
         return Err(StatusCode::CONFLICT);
     }
 
     // Check if a user with a given email already exists
-    if is_email_used(&state.end_user_repository, &payload.user.email)
+    if let Some(is_used) = is_email_used(&state.end_user_repository, &payload.user.email)
         .await
-        .is_ok()
+        .map_err(|error| {
+            error!(
+                "Error while fetching an end user by email from the database: {}",
+                error
+            );
+            StatusCode::INTERNAL_SERVER_ERROR
+        })
+        .ok()
+        && is_used
     {
         return Err(StatusCode::CONFLICT);
     }
