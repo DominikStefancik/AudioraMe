@@ -27,7 +27,7 @@ impl RefreshTokenRepositoryTrait for RefreshTokenRepository {
             r#"
             INSERT INTO refresh_token (end_user_id, token)
             VALUES ($1, $2)
-            RETURNING id, end_user_id, token, created_at, last_used_at
+            RETURNING id, end_user_id, token, is_used, created_at, expires_at, used_at, last_used_at
             "#,
         )
         // The "bind()" method safely inserts our parameters, preventing SQL injection attacks.
@@ -42,7 +42,7 @@ impl RefreshTokenRepositoryTrait for RefreshTokenRepository {
     async fn find_by_token(&self, token: &str) -> Result<Option<RefreshToken>, sqlx::Error> {
         let refresh_token = sqlx::query_as::<_, RefreshToken>(
             r#"
-            SELECT id, end_user_id, token, created_at, last_used_at
+            SELECT id, end_user_id, token, is_used, created_at, expires_at, used_at, last_used_at
             FROM refresh_token
             WHERE token = $1
             "#,
@@ -102,6 +102,24 @@ impl RefreshTokenRepositoryTrait for RefreshTokenRepository {
         // The "bind()" method safely inserts our parameters, preventing SQL injection attacks.
         .bind(end_user_id)
         .execute(&self.db)
+        .await?;
+
+        Ok(())
+    }
+
+    async fn mark_token_as_used(&self, token: &str) -> Result<(), sqlx::Error> {
+        sqlx::query(
+            r#"
+            UPDATE refresh_token
+            SET is_used = TRUE,
+                used_at = $2
+            WHERE token = $1
+            "#,
+        )
+        // The "bind()" method safely inserts our parameters, preventing SQL injection attacks.
+        .bind(token)
+        .bind(Utc::now())
+        .fetch_optional(&self.db)
         .await?;
 
         Ok(())
