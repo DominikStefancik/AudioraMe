@@ -1,10 +1,7 @@
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 
-use crate::{
-    database::EndUser,
-    http::schemas::{validate_username, validate_uuid},
-};
+use crate::{database::EndUser, http::schemas::validate_username};
 
 #[derive(Debug, Serialize)]
 pub struct EndUserData {
@@ -32,12 +29,6 @@ pub struct UpdateEndUserRequest {
 
 #[derive(Debug, Deserialize, Validate)]
 pub struct UpdateEndUserData {
-    #[validate(
-        length(min = 1, message = "Id must be provided"),
-        custom(function = "validate_uuid")
-    )]
-    pub id: String,
-
     #[validate(custom(function = "validate_username"))]
     pub username: Option<String>,
 

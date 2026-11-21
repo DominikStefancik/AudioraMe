@@ -11,5 +11,5 @@ use crate::{
 pub fn users_router() -> Router<AppState> {
     Router::new()
         .route("/current", get(get_current_end_user))
-        .route("/user", put(update_end_user))
+        .route("/user/{id}", put(update_end_user))
 }

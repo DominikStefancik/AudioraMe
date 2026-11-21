@@ -1,13 +1,19 @@
-use axum::{Json, extract::State, http::StatusCode};
+use axum::{
+    Json,
+    extract::{Path, State},
+    http::StatusCode,
+};
 use tracing::{debug, error, info};
-use uuid::Uuid;
 use validator::Validate;
 
 use crate::{
     http::{
         handlers::helpers::{is_email_used, is_username_used},
         middleware::RequiredAuth,
-        schemas::{EndUserData, UpdateEndUserData, UpdateEndUserRequest, UpdateEndUserResponse},
+        schemas::{
+            EndUserData, UpdateEndUserData, UpdateEndUserRequest, UpdateEndUserResponse,
+            validate_uuid,
+        },
     },
     state::AppState,
 };
@@ -15,9 +21,19 @@ use crate::{
 pub async fn update_end_user(
     RequiredAuth(_): RequiredAuth,
     State(state): State<AppState>,
+    Path(id): Path<String>,
     Json(payload): Json<UpdateEndUserRequest>,
 ) -> Result<Json<UpdateEndUserResponse>, StatusCode> {
     info!("update_end_user handler started...");
+
+    // Validate url parameter (we are expecting UUID format)
+    let id = match validate_uuid(&id) {
+        Ok(uuid) => uuid,
+        Err(error) => {
+            error!("Error while validating end user id: {}", error);
+            return Err(StatusCode::BAD_REQUEST);
+        }
+    };
 
     // Validate input data
     payload.user.validate().map_err(|error| {
@@ -25,10 +41,9 @@ pub async fn update_end_user(
         StatusCode::BAD_REQUEST
     })?;
 
-    let end_user_id = Uuid::parse_str(&payload.user.id).unwrap();
     let end_user = state
         .end_user_repository
-        .find_by_id(end_user_id)
+        .find_by_id(id)
         .await
         .map_err(|error| {
             error!(
@@ -39,10 +54,7 @@ pub async fn update_end_user(
         })?;
 
     if end_user.is_none() {
-        debug!(
-            "End user with the id {} doesn't exists",
-            payload.user.id.to_string()
-        );
+        debug!("End user with the id {} doesn't exists", id.to_string());
         return Err(StatusCode::NOT_FOUND);
     }
 
@@ -93,7 +105,6 @@ pub async fn update_end_user(
     }
 
     let UpdateEndUserData {
-        id,
         username,
         email,
         bio,
@@ -103,7 +114,7 @@ pub async fn update_end_user(
     let end_user = state
         .end_user_repository
         .update(
-            end_user_id,
+            id,
             username.as_deref(),
             email.as_deref(),
             bio.as_deref(),

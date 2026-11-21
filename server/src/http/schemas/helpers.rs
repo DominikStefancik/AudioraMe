@@ -2,14 +2,14 @@ use regex::Regex;
 use uuid::Uuid;
 use validator::ValidationError;
 
-pub fn validate_uuid(id: &str) -> Result<(), ValidationError> {
+pub fn validate_uuid(id: &str) -> Result<Uuid, ValidationError> {
     let uuid = Uuid::parse_str(id);
 
     if uuid.is_err() {
-        return Err(ValidationError::new("Username id must be in UUID format"));
+        return Err(ValidationError::new("User id must be in UUID format"));
     }
 
-    Ok(())
+    Ok(uuid.unwrap())
 }
 
 pub fn validate_username(username: &str) -> Result<(), ValidationError> {
