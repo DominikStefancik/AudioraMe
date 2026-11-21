@@ -2,7 +2,7 @@
 
 CREATE TABLE refresh_token (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    -- "ON DELETE CASCADE" means if we delete aa end_user, PostgreSQL automatically deletes all their tokens.
+    -- "ON DELETE CASCADE" means if we delete an end_user, PostgreSQL automatically deletes all their tokens.
     end_user_id UUID NOT NULL REFERENCES end_user(id) ON DELETE CASCADE,
     token VARCHAR(255) UNIQUE NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
