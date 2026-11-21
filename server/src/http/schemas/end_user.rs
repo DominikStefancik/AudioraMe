@@ -22,6 +22,11 @@ impl EndUserData {
     }
 }
 
+#[derive(Debug, Serialize)]
+pub struct GetEndUserResponse {
+    pub user: EndUserData,
+}
+
 #[derive(Debug, Deserialize)]
 pub struct UpdateEndUserRequest {
     pub user: UpdateEndUserData,
